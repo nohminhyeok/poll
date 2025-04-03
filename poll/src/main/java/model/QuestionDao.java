@@ -137,4 +137,32 @@ public class QuestionDao {
         conn.close();
         return question;
     }
+    
+    public int updateQuestion2(int num, String endDate) throws ClassNotFoundException, SQLException {
+
+	    Class.forName("com.mysql.cj.jdbc.Driver");
+	    Connection conn = null;
+	    PreparedStatement stmt = null;
+	    
+	    String sql = "UPDATE question SET enddate = ? WHERE num = ?";
+	    conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/poll", "root", "java1234");
+	    
+	    // UPDATE 쿼리 실행
+	    stmt = conn.prepareStatement(sql);
+	    stmt.setString(1, endDate);
+	    stmt.setInt(2, num);
+	    
+	    int rowsUpdated = stmt.executeUpdate(); // 수정된 행의 개수 반환
+	    
+	    // 업데이트된 행이 있다면
+	    if (rowsUpdated > 0) {
+	        System.out.println("질문 정보가 성공적으로 업데이트되었습니다.");
+	    } else {
+	        System.out.println("업데이트된 질문이 없습니다. num 값을 확인해보세요.");
+	    }
+	    
+	    // 연결 종료
+	    conn.close();
+		return rowsUpdated;
 	}
+}

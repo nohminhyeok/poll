@@ -56,17 +56,17 @@
 			    </tr>
             <tr>
                 <td>시작일</td>
-                <td><input type="date" name="startdate" value="<%= question.getStartdate() %>"></td>
+                <td><input type="date" name="startdate" value="<%=question.getStartdate()%>"></td>
             </tr>
             <tr>
                 <td>종료일</td>
-                <td><input type="date" name="enddate" value="<%= question.getEnddate() %>"></td>
+                <td><input type="date" name="enddate" value="<%=question.getEnddate()%>" readonly></td>
             </tr>
             <tr>
                 <td>복수투표</td>
                 <td>
-                    <input type="radio" name="type" value="1" <%= question.getType() == 1 ? "checked" : "" %>> yes
-                    <input type="radio" name="type" value="0" <%= question.getType() == 0 ? "checked" : "" %>> no
+                    <input type="radio" name="type" value="1" <%=question.getType() == 1 ? "checked" : "" %>> yes
+                    <input type="radio" name="type" value="0" <%=question.getType() == 0 ? "checked" : "" %>> no
                 </td>
             </tr>
         </table>

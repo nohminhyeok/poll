@@ -108,7 +108,7 @@
 					<%
 						if (endDateObj.equals(todayDate) || endDateObj.after(todayDate)){
 					%>
-						<a href="/poll/updateQuestionEnddateForm.jsp">종료일자 수정</a>
+						<a href="/poll/updateQuestionEnddateForm.jsp?qnum=<%=question.getNum()%>&num=<%=question.getNum()%>">종료일자 수정</a>
 					<%
 						}
 					%>							

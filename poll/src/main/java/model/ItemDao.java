@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 import dto.Item;
 import dto.Question;
@@ -62,4 +63,78 @@ public class ItemDao {
 		conn.close();
 		return itemList;
 	}
+	
+    public Item selectItemByQnum(int qnum) throws ClassNotFoundException, SQLException {
+        Item item = null;
+
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/poll", "root", "java1234");
+        
+        String sql = "SELECT * FROM item WHERE qnum = ?";
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        stmt.setInt(1, qnum);
+
+        
+        ResultSet rs = stmt.executeQuery();
+
+        if (rs.next()) {
+        	item = new Item();
+        	item.setQnum(rs.getInt("qnum"));
+        	item.setInum(rs.getInt("inum"));
+        	item.setContent(rs.getString("content"));
+        }
+        
+        conn.close();
+        return item;
+    }
+    
+    public List<Item> selectItemsByQnum(int qnum) throws SQLException {
+        List<Item> itemList = new ArrayList<>();
+        String sql = "SELECT * FROM item WHERE qnum = ?";
+        
+        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/poll", "root", "java1234");
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        stmt.setInt(1, qnum);
+        
+        ResultSet rs = stmt.executeQuery();
+        
+        while (rs.next()) {
+            Item item = new Item();
+            item.setQnum(rs.getInt("qnum"));
+            item.setInum(rs.getInt("inum"));
+            item.setContent(rs.getString("content"));
+            itemList.add(item);
+        }
+        
+        conn.close(); // 연결 종료
+        return itemList;
+    }
+    
+    public int updateItem(int qnum, int inum, String content) throws ClassNotFoundException, SQLException {
+	    Class.forName("com.mysql.cj.jdbc.Driver");
+	    Connection conn = null;
+	    PreparedStatement stmt = null;
+	    
+	    String sql = "UPDATE item SET content = ? WHERE qnum = ? AND inum = ?";
+	    conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/poll", "root", "java1234");
+	    
+	    stmt = conn.prepareStatement(sql);
+	    stmt.setString(1, content);
+	    stmt.setInt(2, qnum);
+	    stmt.setInt(3, inum);
+	    
+	    int rowsUpdated = stmt.executeUpdate(); // 수정된 행의 개수 반환
+	    
+	    // 업데이트된 행이 있다면
+	    if (rowsUpdated > 0) {
+	        System.out.println("질문 정보가 성공적으로 업데이트되었습니다.");
+	    } else {
+	        System.out.println("업데이트된 질문이 없습니다. num 값을 확인해보세요.");
+	    }
+	    
+	    // 연결 종료
+	    conn.close();
+		return rowsUpdated;
+	    
+    }
 }

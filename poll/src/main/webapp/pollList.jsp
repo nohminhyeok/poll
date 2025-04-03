@@ -93,7 +93,9 @@
 						<a>투표종료</a>
 					<%
 						// 투표하기: 오늘 날짜가 시작일과 종료일 사이일 경우
-						} else if (startDateObj.before(todayDate) && endDateObj.after(todayDate)) {  // 오늘 날짜가 시작일과 종료일 사이일 경우
+						} else if ((startDateObj.before(todayDate) || startDateObj.equals(todayDate)) 
+						           && (endDateObj.after(todayDate) || endDateObj.equals(todayDate))) 
+						{ 
 					%>                
 						<a href="votePage.jsp?questionId=<%=question.getNum()%>">투표하기</a>
 					<%
@@ -101,10 +103,10 @@
 					%>     					
 				</td>
 				<td><a href="/poll/deletePollAction.jsp?qnum=<%=question.getNum()%>&num=<%=question.getNum()%>">삭제</a></td>
-				<td><a href="/poll/updatePollFomr.jsp">수정</a></td>
+				<td><a href="/poll/updatePollForm.jsp?qnum=<%=question.getNum()%>&num=<%=question.getNum()%>">수정</a></td>
 				<td>
 					<%
-						if (endDateObj.after(todayDate)){
+						if (endDateObj.equals(todayDate) || endDateObj.after(todayDate)){
 					%>
 						<a href="/poll/updateQuestionEnddateForm.jsp">종료일자 수정</a>
 					<%

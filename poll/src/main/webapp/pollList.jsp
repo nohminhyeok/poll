@@ -4,7 +4,6 @@
 <%@ page import = "dto.*" %>
 <%@ page import = "model.*" %>
 <%@ page import = "java.util.*" %>
-<%@ page import = "java.sql.*" %>
 <%
 	// question 테이블 리스트 -> 페이징 -> title 링크(startdate <= 오늘날짜 <= enddate) -> 투표프로그램
 	// QuestionDao.selectQuestionList(Paging)
@@ -51,7 +50,11 @@
 			<th>시작일</th>
 			<th>종료일</th>
 			<th>복수투표</th>
-			<th>투표하기</th>
+			<th>투표</th>
+			<th>삭제</th>
+			<th>수정</th>
+			<th>종료일자 수정</th>
+			<th>결과</th>
 		</tr>
 		<%
 			for(Question question : list){
@@ -82,12 +85,12 @@
 					<%  // 투표 시작 전: 오늘 날짜가 시작일 이전일 경우 (내일 시작하는 투표도 포함)
 						if (startDateObj.after(todayDate)) {  // 시작일이 오늘 이후일 경우
 					%>
-						<a>투표 시작 전</a>
+						<a>시작전</a>
 					<%
 						// 투표 종료: 오늘 날짜가 종료일 이전일 경우
 						} else if (endDateObj.before(todayDate)) {  // 종료일이 오늘 이전일 경우
 					%>
-						<a>투표 종료</a>
+						<a>투표종료</a>
 					<%
 						// 투표하기: 오늘 날짜가 시작일과 종료일 사이일 경우
 						} else if (startDateObj.before(todayDate) && endDateObj.after(todayDate)) {  // 오늘 날짜가 시작일과 종료일 사이일 경우
@@ -96,6 +99,26 @@
 					<%
 					}
 					%>     					
+				</td>
+				<td><a href="/poll/deletePollAction.jsp?qnum=<%=question.getNum()%>&num=<%=question.getNum()%>">삭제</a></td>
+				<td><a href="/poll/updatePollFomr.jsp">수정</a></td>
+				<td>
+					<%
+						if (endDateObj.after(todayDate)){
+					%>
+						<a href="/poll/updateQuestionEnddateForm.jsp">종료일자 수정</a>
+					<%
+						}
+					%>							
+				</td>
+				<td>
+					<%
+						if (endDateObj.before(todayDate)){
+					%>
+					<a href="">결과보기</a>
+					<%
+						}
+					%>							
 				</td>
 			</tr>
 		<%

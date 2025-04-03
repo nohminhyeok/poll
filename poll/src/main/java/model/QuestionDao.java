@@ -66,4 +66,20 @@ public class QuestionDao {
 		conn.close();
 		return pk;
 	}
+	
+	public void deleteQuestion(int num) throws ClassNotFoundException, SQLException {
+		Class.forName("com.mysql.cj.jdbc.Driver");
+		Connection conn = null;
+		PreparedStatement stmt = null;
+		// 입력이지만 키값을 받아올때 사용
+		ResultSet rs = null;
+		String sql = "delete from question where num = ? ";
+		conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/poll","root","java1234");
+		stmt = conn.prepareStatement(sql);	
+		stmt.setInt(1, num);
+	    stmt.executeUpdate();
+		conn.close();
+	}
+		
+	
 }

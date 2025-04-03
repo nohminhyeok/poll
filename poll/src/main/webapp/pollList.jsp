@@ -1,6 +1,6 @@
-<%@page import="java.util.Date"%>
-<%@page import="java.text.SimpleDateFormat"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="java.util.Date"%>
+<%@ page import="java.text.SimpleDateFormat"%>
 <%@ page import = "dto.*" %>
 <%@ page import = "model.*" %>
 <%@ page import = "java.util.*" %>
@@ -50,44 +50,52 @@
 			<th>제목</th>
 			<th>시작일</th>
 			<th>종료일</th>
-			<th>type</th>
+			<th>복수투표</th>
 			<th>투표하기</th>
 		</tr>
 		<%
 			for(Question question : list){
                 String startdate = question.getStartdate(); // 시작일
                 String enddate = question.getEnddate(); // 종료일
+                int getType = question.getType();
+                String getTypestr = "";
+                if(getType == 1) {
+                	getTypestr = "가능";
+                } else if (getType == 0) {
+                	getTypestr = "불가능";
+                }
                 
                 // 시작일과 종료일을 Date 객체로 변환
                 Date startDateObj = sdf.parse(startdate);
                 Date endDateObj = sdf.parse(enddate);
                 Date todayDate = sdf.parse(today); // 오늘 날짜를 Date 객체로 변환
+				
+                
 		%>
 			<tr>
 				<td><%=question.getNum()%></td>
 				<td><%=question.getTitle()%></td>
 				<td><%=question.getStartdate()%></td>
 				<td><%=question.getEnddate()%></td>
-				<td><%=question.getType()%></td>
+				<td><%=getTypestr%></td>
 				<td>
-         			 <%
-                        // 투표 시작 전: 오늘 날짜가 시작일 이전일 경우
-                        if (startDateObj.after(todayDate)) { 
-                    %>
-                        <a>투표 시작 전</a>
-                    <%
-                        // 투표 종료: 오늘 날짜가 종료일 이후일 경우
-                        } else if (endDateObj.before(todayDate)) {
-                    %>
-                        <a>투표 종료</a>
-                    <%
-                        // 투표하기: 오늘 날짜가 시작일과 종료일 사이일 경우
-                        } else {
-                    %>                
-                        <a href="">투표하기</a>
-                    <%
-                        }
-                    %>  					
+					<%  // 투표 시작 전: 오늘 날짜가 시작일 이전일 경우 (내일 시작하는 투표도 포함)
+						if (startDateObj.after(todayDate)) {  // 시작일이 오늘 이후일 경우
+					%>
+						<a>투표 시작 전</a>
+					<%
+						// 투표 종료: 오늘 날짜가 종료일 이전일 경우
+						} else if (endDateObj.before(todayDate)) {  // 종료일이 오늘 이전일 경우
+					%>
+						<a>투표 종료</a>
+					<%
+						// 투표하기: 오늘 날짜가 시작일과 종료일 사이일 경우
+						} else if (startDateObj.before(todayDate) && endDateObj.after(todayDate)) {  // 오늘 날짜가 시작일과 종료일 사이일 경우
+					%>                
+						<a href="votePage.jsp?questionId=<%=question.getNum()%>">투표하기</a>
+					<%
+					}
+					%>     					
 				</td>
 			</tr>
 		<%
@@ -95,7 +103,5 @@
 		%>		
 
 	</table>
-	<!-- foreach문 ArrayList<Question> list 출력 title 
-	링크(startdate <= 오늘날짜 <= enddate) 투표시작전, 투표종료, 투표하기 -->
 </body>
 </html>

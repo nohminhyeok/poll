@@ -20,7 +20,7 @@ public class QuestionDao {
         Class.forName("com.mysql.cj.jdbc.Driver");
         Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/poll", "root", "java1234");
         
-        String sql = "SELECT * FROM question WHERE startdate <= CURDATE() AND enddate >= CURDATE() ORDER BY num LIMIT ?, ?";
+        String sql = "SELECT * FROM question ORDER BY num LIMIT ?, ?";
         PreparedStatement stmt = conn.prepareStatement(sql);
 
         stmt.setInt(1, p.getBeginRow());

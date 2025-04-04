@@ -34,34 +34,18 @@ public class ItemDao {
 		conn.close();
 	}
 	
-	public ArrayList<Item> deleteItem(int qnum) throws ClassNotFoundException, SQLException {
-		ArrayList<Item> itemList = new ArrayList<>();
-		
+	public void deleteItem(int qnum) throws ClassNotFoundException, SQLException {
 		Class.forName("com.mysql.cj.jdbc.Driver");
-
 		Connection conn = null;
-		conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/poll","root","java1234");
 		PreparedStatement stmt = null;
-		ResultSet rs  = null;
+		String sql = "delete from item where qnum = ?";
 		
-		String sql = "select * from item where qnum = ?";
+		conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/poll", "root", "java1234");
 		stmt = conn.prepareStatement(sql);
 		stmt.setInt(1, qnum);
-		rs = stmt.executeQuery();
-		
-		while(rs.next()) {
-			Item item = new Item();
-			item.setQnum(rs.getInt("qnum"));
-			itemList.add(item);
-		}
-		
-	    String sql1 = "DELETE FROM item WHERE qnum = ? AND count = 0";
-	    stmt = conn.prepareStatement(sql1);
-	    stmt.setInt(1, qnum);
-	    stmt.executeUpdate();
-		
+		stmt.executeUpdate();
+				
 		conn.close();
-		return itemList;
 	}
 	
     public Item selectItemByQnum(int qnum) throws ClassNotFoundException, SQLException {
@@ -90,7 +74,7 @@ public class ItemDao {
     
     public List<Item> selectItemsByQnum(int qnum) throws SQLException {
         List<Item> itemList = new ArrayList<>();
-        String sql = "SELECT * FROM item WHERE qnum = ?";
+        String sql = "select qnum, inum, content, count from item where qnum = ? order by inum asc";
         
         Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/poll", "root", "java1234");
         PreparedStatement stmt = conn.prepareStatement(sql);
@@ -103,6 +87,8 @@ public class ItemDao {
             item.setQnum(rs.getInt("qnum"));
             item.setInum(rs.getInt("inum"));
             item.setContent(rs.getString("content"));
+            item.setCount(rs.getInt("count"));
+            
             itemList.add(item);
         }
         
@@ -135,6 +121,44 @@ public class ItemDao {
 	    // 연결 종료
 	    conn.close();
 		return rowsUpdated;
+    }
+    
+    public void updateItemCountPlus(int inum, int qnum) throws ClassNotFoundException, SQLException {
+    	Class.forName("com.mysql.cj.jdbc.Driver");
+	    Connection conn = null;
+	    PreparedStatement stmt = null;
 	    
+	    String sql = "UPDATE item SET count = count+1 where inum = ? and qnum = ?";
+	    conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/poll", "root", "java1234");
+	    
+	    stmt = conn.prepareStatement(sql);
+	    stmt.setInt(1, inum);
+	    stmt.setInt(2, qnum);
+	    int row = stmt.executeUpdate();
+	    if(row == 1) {
+	    	System.out.println("ItemDao.updateItemCountPlus : 입력 성공");
+	    } else {
+	    	System.out.println("ItemDao.updateItemCountPlus : 입력 실패");
+	    }
+	}
+    
+    public int selectItemCountByQnum(int qnum) throws ClassNotFoundException, SQLException {
+    	int count = 0;
+    	Class.forName("com.mysql.cj.jdbc.Driver");
+		Connection conn = null;
+		conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/poll","root","java1234");
+		PreparedStatement stmt = null;
+		ResultSet rs  = null;
+		
+		String sql = "select sum(count) cnt from item group by qnum having qnum = ?";
+		stmt = conn.prepareStatement(sql);
+		stmt.setInt(1, qnum);
+		rs = stmt.executeQuery();
+		
+		if(rs.next()) {
+			count = rs.getInt("cnt");
+		}
+		return count;
+    	
     }
 }

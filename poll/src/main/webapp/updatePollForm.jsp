@@ -3,22 +3,28 @@
 <%@ page import="model.*" %>
 <%@ page import="java.util.*" %>
 <%
-    // qnum 파라미터를 통해 해당 설문 번호를 가져옴
-    int qnum = Integer.parseInt(request.getParameter("qnum"));
 	int num = Integer.parseInt(request.getParameter("num"));
-
+	System.out.println("tnum : "+num);
 
 	 
     // QuestionDao와 ItemDao 객체 생성
     ItemDao itemDao = new ItemDao();
-    List<Item> itemList = itemDao.selectItemsByQnum(qnum);
-    // qnum에 해당하는 항목들 가져오기
-	int maxInum = itemList.stream().mapToInt(Item::getInum).max().orElse(Integer.MIN_VALUE);
-	System.out.println("Max Inum: " + maxInum);
+    List<Item> itemList = itemDao.selectItemsByQnum(num);
+
     
     // 추가적으로 QuestionDao를 통해 설문지 정보를 가져올 수 있습니다.
     QuestionDao questionDao = new QuestionDao();
     Question question = questionDao.selectQuestionByNum(num);  // 설문지 정보 가져오기
+    
+	int i = 1;
+    /*
+    String[] content = request.getParameterValues("content");
+    ArrayList<String> contentList = new ArrayList<>();
+    for	(Item item : itemList) {
+    	
+    }
+    System.out.println(contentList);
+    */
 %>
 
 <!DOCTYPE html>
@@ -38,23 +44,41 @@
                 </td>			
             </tr>    
 			<tr>
-			    <td rowspan="<%=maxInum + 1%>">항목</td> <!--  if문 쓰고 max를 다른 값으로 넣어서 해보자 -->
-			    <%
-			    	for	(Item item : itemList) {
-			    %>
-			</tr>
-			    <tr>
-			    	<td>
-			        <input type="hidden" name="qnum" value="<%=item.getQnum()%>">
-			        <input type="hidden" name="inum" value="<%=item.getInum()%>">
-			    	<input type="text" name="content" value="<%= item.getContent()%>">
-			    	<input type="text">
-			    	</td>
-				<%
-			    	}
-				%>  
-			    </tr>
-            <tr>
+                <td rowspan="8">항목</td> 
+                <%
+                    // itemList를 반복하여 항목을 출력
+                    for (Item item : itemList) {
+                        
+                %>
+                        <td>
+								    <input type="hidden" name="num" value='<%=num%>'>
+                            <%=i%>) <input type="text" name="content" value="<%= item.getContent() %>">
+                        </td>
+                <%
+                        // i 값이 2의 배수일 때, 테이블 행을 새로 시작
+                        if (i % 2 == 0) {
+                %>
+                            </tr><tr> <!-- 행 끝내고 새로운 행 시작 -->
+                <%
+                        }
+                        i++; // 항목 번호 증가
+                    }
+
+                    // 남은 항목이 있을 경우 빈 항목을 추가
+                    while (i <= 8) {
+                %>
+                        <td><%=i%>) <input type="text" name="content"></td>
+                <%
+                        if (i % 2 == 0) {
+                %>
+                            </tr><tr> <!-- 행 끝내고 새로운 행 시작 -->
+                <%
+                        }
+                        i++;
+                    }
+                %>
+            </tr>
+ 			<tr>
                 <td>시작일</td>
                 <td><input type="date" name="startdate" value="<%=question.getStartdate()%>"></td>
             </tr>
@@ -71,7 +95,6 @@
             </tr>
         </table>
         <button type="submit">수정하기</button>
-        <input type="hidden" name="num" value="<%=question.getNum()%>">
     </form>
 </body>
 </html>

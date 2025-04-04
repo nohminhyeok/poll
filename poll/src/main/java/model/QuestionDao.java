@@ -15,13 +15,18 @@ import dto.Question;
 // Table : question crud
 public class QuestionDao {
 	
-	public ArrayList<Question> selectQuestionList(Paging p) throws ClassNotFoundException, SQLException {
-		ArrayList<Question> list = new ArrayList<>();
+	public ArrayList<HashMap<String, Object>> selectQuestionList(Paging p) throws ClassNotFoundException, SQLException {
+		
+		ArrayList<HashMap<String, Object>> list = new ArrayList<>();
 	       
         Class.forName("com.mysql.cj.jdbc.Driver");
         Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/poll", "root", "java1234");
         
-        String sql = "SELECT * FROM question ORDER BY num LIMIT ?, ?";
+        String sql = "SELECT q.num, q.title, q.startdate, q.enddate, q.type, t.cnt"
+        		+ " from question q"
+        		+ "	inner join (select qnum, sum(count) cnt from item"
+        		+ "	group by qnum) t on q.num = t.qnum"
+        		+ "	ORDER BY q.num asc limit ? , ?";
         PreparedStatement stmt = conn.prepareStatement(sql);
 
         stmt.setInt(1, p.getBeginRow());
@@ -29,15 +34,17 @@ public class QuestionDao {
         
         ResultSet rs = stmt.executeQuery();
 
-        while (rs.next()) {
-            Question question = new Question();
-            question.setNum(rs.getInt("num"));
-            question.setTitle(rs.getString("title"));
-            question.setStartdate(rs.getString("startdate"));
-            question.setEnddate(rs.getString("enddate"));
-            question.setType(rs.getInt("type"));
-            list.add(question);
-        }
+		while (rs.next()) {
+			HashMap<String, Object> map = new HashMap<String, Object>();
+			map.put("num", rs.getInt("q.num"));
+			map.put("title", rs.getString("q.title"));
+			map.put("startdate", rs.getString("q.startdate"));
+			map.put("enddate", rs.getString("q.enddate"));
+			map.put("type", rs.getInt("q.type"));
+			map.put("cnt", rs.getInt("t.cnt"));
+			
+			list.add(map);
+		}
         conn.close();
         return list;
     }

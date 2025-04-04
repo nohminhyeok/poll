@@ -6,6 +6,9 @@
 <title>insertPollForm</title>
 </head>
 <body>
+	<div>
+	<jsp:include page="/inc/nav.jsp"></jsp:include>
+	</div>
 	<h1>투표프로그램</h1>
 	<hr>
 	<h2>설문작성</h2>

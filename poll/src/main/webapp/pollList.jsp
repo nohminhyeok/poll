@@ -10,7 +10,6 @@
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	String today = sdf.format(new Date());
 	System.out.println(today);
-
  	
     
 	int currentPage = 1;
@@ -28,10 +27,10 @@
     
     int totalPages = paging.getLastPage(totalRows);
 	
-    
+	ItemDao itemDao = new ItemDao();
 	
 	QuestionDao questionDao = new QuestionDao();
-	ArrayList<Question> list = questionDao.selectQuestionList(paging);
+	ArrayList<HashMap<String, Object>> list = questionDao.selectQuestionList(paging);
 
 	
 %>
@@ -40,16 +39,25 @@
 <head>
 <meta charset="UTF-8">
 <title>pollList</title>
+	<!-- Latest compiled and minified CSS -->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+	
+	<!-- Latest compiled JavaScript -->
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
+	<div>
+	<jsp:include page="/inc/nav.jsp"></jsp:include>
+	</div>
 	<h1>설문리스트</h1>
-	<table border="1">
+	<table class="table table-dark table-hover">
 		<tr>
 			<th>번호</th>
 			<th>제목</th>
 			<th>시작일</th>
 			<th>종료일</th>
 			<th>복수투표</th>
+			<th>총 투표횟수</th>
 			<th>투표</th>
 			<th>삭제</th>
 			<th>수정</th>
@@ -57,16 +65,16 @@
 			<th>결과</th>
 		</tr>
 		<%
-			for(Question question : list){
-                String startdate = question.getStartdate(); // 시작일
-                String enddate = question.getEnddate(); // 종료일
-                int getType = question.getType();
-                String getTypestr = "";
-                if(getType == 1) {
-                	getTypestr = "가능";
-                } else if (getType == 0) {
-                	getTypestr = "불가능";
-                }
+			for(HashMap<String, Object> map : list){
+				// HashMap에서 데이터를 추출
+	            int num = (Integer) map.get("num");
+	            String title = (String) map.get("title");
+	            String startdate = (String) map.get("startdate");
+	            String enddate = (String) map.get("enddate");
+	            int type = (Integer) map.get("type");
+	            int cnt = (Integer) map.get("cnt");
+	
+	            String getTypestr = (type == 1) ? "가능" : "불가능";
                 
                 // 시작일과 종료일을 Date 객체로 변환
                 Date startDateObj = sdf.parse(startdate);
@@ -76,11 +84,12 @@
                 
 		%>
 			<tr>
-				<td><%=question.getNum()%></td>
-				<td><%=question.getTitle()%></td>
-				<td><%=question.getStartdate()%></td>
-				<td><%=question.getEnddate()%></td>
-				<td><%=getTypestr%></td>
+				<td><%=num%></td>
+				<td><%=title%></td>
+				<td><%=startdate%></td>
+				<td><%=enddate%></td>
+				<td><%=type%></td>
+				<td><%=cnt%></td>
 				<td>
 					<%  // 투표 시작 전: 오늘 날짜가 시작일 이전일 경우 (내일 시작하는 투표도 포함)
 						if (startDateObj.after(todayDate)) {  // 시작일이 오늘 이후일 경우
@@ -97,18 +106,19 @@
 						           && (endDateObj.after(todayDate) || endDateObj.equals(todayDate))) 
 						{ 
 					%>                
-						<a href="votePage.jsp?questionId=<%=question.getNum()%>">투표하기</a>
+						<a href="/poll/updateItemForm.jsp?qnum=<%=num%>">투표하기</a>
 					<%
 					}
 					%>     					
 				</td>
-				<td><a href="/poll/deletePollAction.jsp?qnum=<%=question.getNum()%>&num=<%=question.getNum()%>">삭제</a></td>
-				<td><a href="/poll/updatePollForm.jsp?qnum=<%=question.getNum()%>&num=<%=question.getNum()%>">수정</a></td>
+				<td><a href="/poll/deletePollAction.jsp?qnum=<%=num%>&num=<%=num%>">삭제</a></td>
+				<td><a href="/poll/updatePollForm.jsp?num=<%=num%>">수정</a></td>
 				<td>
 					<%
+													
 						if (endDateObj.equals(todayDate) || endDateObj.after(todayDate)){
 					%>
-						<a href="/poll/updateQuestionEnddateForm.jsp?qnum=<%=question.getNum()%>&num=<%=question.getNum()%>">종료일자 수정</a>
+						<a href="/poll/updateQuestionEnddateForm.jsp?qnum=<%=num%>&num=<%=num%>">종료일자 수정</a>
 					<%
 						}
 					%>							
@@ -117,8 +127,12 @@
 					<%
 						if (endDateObj.before(todayDate)){
 					%>
-					<a href="">결과보기</a>
+					<a href='/poll/questionOneResult.jsp?qnum=<%=num%>'>결과보기</a>
 					<%
+						} else {
+					%>
+						투표 진행중
+					<%		
 						}
 					%>							
 				</td>
@@ -128,5 +142,6 @@
 		%>		
 
 	</table>
+	<button type="submit"><a href="/poll/insertPollForm.jsp">설문 작성하기</a></button>
 </body>
 </html>

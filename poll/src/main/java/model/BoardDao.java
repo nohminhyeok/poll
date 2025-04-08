@@ -12,16 +12,17 @@ import dto.Board;
 import dto.Paging;
 
 public class BoardDao {
-	public ArrayList<Board> selectBoardList(Paging p) throws ClassNotFoundException, SQLException{
+	public ArrayList<Board> selectBoardList(Paging p, String searchWord) throws ClassNotFoundException, SQLException{
 		Class.forName("com.mysql.cj.jdbc.Driver");
 		Connection conn = null;
 		PreparedStatement stmt = null;
 		ResultSet rs = null;
-		String sql = "select * from board order by ref desc, pos asc limit ?, ?";
+		String sql = "select * from board where subject like ? order by ref desc, pos asc limit ?, ?";
 		conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/poll", "root", "java1234");
 		stmt = conn.prepareStatement(sql);
-		stmt.setInt(1, p.getBeginRow());
-		stmt.setInt(2, p.getRowPerPage());
+		stmt.setString(1, "%"+searchWord+"%");
+		stmt.setInt(2, p.getBeginRow());
+		stmt.setInt(3, p.getRowPerPage());
 		rs = stmt.executeQuery();
 		
 		ArrayList<Board> list = new ArrayList<>();
@@ -163,9 +164,10 @@ public class BoardDao {
 		Connection conn = null;
 		PreparedStatement stmt = null;
 		conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/poll", "root", "java1234");
-		String sql = "delete from board where num = ?";
+		String sql = "delete from board where num = ? or ref = ?";
 		stmt = conn.prepareStatement(sql);
 		stmt.setInt(1, num);
+		stmt.setInt(2, num);
 		stmt.executeUpdate();
 		
 		conn.close();
@@ -191,13 +193,37 @@ public class BoardDao {
 	    if (rowsUpdated > 0) {
 	        System.out.println("질문 정보가 성공적으로 업데이트되었습니다.");
 	    } else {
-	        System.out.println("업데이트된 질문이 없습니다. num 값을 확인해보세요.");
+	        System.out.println("수정에 실패하였습니다. 비밀번호를 확인해주세요.");
 	    }
 	    
 	    // 연결 종료
 	    conn.close();
 		return rowsUpdated;
-		
-	
 	}
+	
+	public int getTotalCount(String searchWord) throws ClassNotFoundException, SQLException {
+		int row = 0;
+		Connection conn = null;
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+
+		Class.forName("com.mysql.cj.jdbc.Driver");
+		conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/poll","root","java1234");
+		
+		String sql = " SELECT COUNT(*) as cnt FROM board WHERE subject LIKE ?";
+		
+		stmt = conn.prepareStatement(sql);
+		
+		stmt.setString(1, "%"+searchWord+"%");
+		
+		rs = stmt.executeQuery();
+		if(rs.next()) {
+			row = rs.getInt(1);
+		}
+		
+		conn.close();
+		
+		return row;
+	}
+	
 }

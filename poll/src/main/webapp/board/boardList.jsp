@@ -5,15 +5,32 @@
 <%
 	int currentPage = 1;
 	if(request.getParameter("currentPage") != null){
-		currentPage = Integer.parseInt(request.getParameter("currertPage"));
+		currentPage = Integer.parseInt(request.getParameter("currentPage"));
 	}
 	
 	BoardDao boardDao = new BoardDao();
 	Paging p = new Paging();
 	p.setCurrentPage(currentPage);
-	p.setRowPerPage(10);
+	p.setRowPerPage(5);
+	int rowPerPage = p.getRowPerPage();
 	
-	ArrayList<Board> list = boardDao.selectBoardList(p);
+	String searchWord = request.getParameter("searchWord");
+	if(searchWord == null) {
+		searchWord = "";
+	}
+	System.out.println("searchWord : "+searchWord);
+
+	
+	int totalCnt = boardDao.getTotalCount(searchWord);
+	
+	int lastPage = totalCnt / rowPerPage;
+	if(totalCnt % rowPerPage != 0) {
+		lastPage = lastPage + 1;
+	}
+	
+	boardDao.getTotalCount(searchWord);
+	ArrayList<Board> list = boardDao.selectBoardList(p, searchWord);
+	
 %>
 <!DOCTYPE html>
 <html>
@@ -67,5 +84,28 @@
 			%>
 		</tbody>
 	</table>
+	<form action="/poll/board/boardList.jsp" method="get">
+		<input type="text" name="searchWord" value="<%=searchWord%>">
+		<button type="submit">subject 검색</button>
+	</form>
+	<%
+		if(currentPage > 1) {
+	%>
+		<a href="/poll/board/boardList.jsp?currentPage=1&searchWord=<%=searchWord%>">처음</a>
+	<%
+		} else {
+	%>
+		<a href="/poll/board/boardList.jsp?currentPage=<%=currentPage-1%>&searchWord=<%=searchWord%>">이전</a>
+		<a href="/poll/board/boardList.jsp?currentPage=<%=currentPage+1%>&searchWord=<%=searchWord%>">다음</a>
+	<%
+		}
+	%>			
+	<%
+		if(currentPage < lastPage) {
+	%>
+		<a href="/poll/board/boardList.jsp?currentPage=<%=lastPage%>&searchWord=<%=searchWord%>">마지막</a>
+	<%
+		}
+	%>			
 </body>
 </html>

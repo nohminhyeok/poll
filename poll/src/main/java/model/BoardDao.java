@@ -160,17 +160,35 @@ public class BoardDao {
 	}
 	
 	public void deleteBoard(int num) throws ClassNotFoundException, SQLException {
-		Class.forName("com.mysql.cj.jdbc.Driver");
-		Connection conn = null;
-		PreparedStatement stmt = null;
-		conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/poll", "root", "java1234");
-		String sql = "delete from board where num = ? or ref = ?";
-		stmt = conn.prepareStatement(sql);
-		stmt.setInt(1, num);
-		stmt.setInt(2, num);
-		stmt.executeUpdate();
-		
-		conn.close();
+	    Class.forName("com.mysql.cj.jdbc.Driver");
+
+	    // 연결 객체 선언
+	    Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/poll", "root", "java1234");
+	    PreparedStatement stmt1 = null;
+	    PreparedStatement stmt2 = null;
+
+	    // 트랜잭션 시작
+	    conn.setAutoCommit(false);
+
+	    // 1. DELETE 쿼리: 특정 num에 해당하는 게시글 삭제
+	    String sql1 = "DELETE FROM board WHERE num = ?";
+	    stmt1 = conn.prepareStatement(sql1);
+	    stmt1.setInt(1, num);
+	    stmt1.executeUpdate();
+
+	    // 2. UPDATE 쿼리: 삭제된 부모글(ref)과 같은 ref를 가진 다른 게시글들의 content를 변경
+	    String sql2 = "UPDATE board SET subject = '부모글이 삭제된 글입니다.' WHERE ref = ?";
+	    stmt2 = conn.prepareStatement(sql2);
+	    stmt2.setInt(1, num); // 삭제된 부모글의 ref 값을 사용
+	    stmt2.executeUpdate();
+
+	    // 트랜잭션 커밋
+	    conn.commit();
+
+	    // 자원 해제
+	    stmt1.close();
+	    stmt2.close();
+	    conn.close();
 	}
 	
 	public int updateBoard(String name, String subject, String content, int num , int pass) throws ClassNotFoundException, SQLException {

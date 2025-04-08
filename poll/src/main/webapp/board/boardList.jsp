@@ -91,14 +91,12 @@
 	<%
 		if(currentPage > 1) {
 	%>
+		<a href="/poll/board/boardList.jsp?currentPage=1&searchWord=<%=searchWord%>">처음</a>
 		<a href="/poll/board/boardList.jsp?currentPage=<%=currentPage-1%>&searchWord=<%=searchWord%>">이전</a>
 	<%
-		} else {
+		} 
 	%>
-		<a href="/poll/board/boardList.jsp?currentPage=1&searchWord=<%=searchWord%>">처음</a>
-	<%
-		}
-	%>			
+	
 	<%
 		if(currentPage < lastPage) {
 	%>

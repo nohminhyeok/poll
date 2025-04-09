@@ -130,7 +130,7 @@ public class BoardDao {
 		PreparedStatement stmt2 = null;
 		
 		
-		String sql2 = "update board set pos = pos+1 where ref = ? and pos >= ?";
+		String sql2 = "update board set pos = pos+1 where ref=? and pos >= ?";
 		stmt2=conn.prepareStatement(sql2);
 		stmt2.setInt(1, b.getRef());
 		stmt2.setInt(2, b.getPos());
@@ -177,7 +177,7 @@ public class BoardDao {
 	    stmt1.executeUpdate();
 
 	    // 2. UPDATE 쿼리: 삭제된 부모글(ref)과 같은 ref를 가진 다른 게시글들의 content를 변경
-	    String sql2 = "UPDATE board SET subject = '부모글이 삭제된 글입니다.' WHERE ref = ?";
+	    String sql2 = "UPDATE board SET subject = '게시글이 삭제된 답글입니다.' WHERE ref = ?";
 	    stmt2 = conn.prepareStatement(sql2);
 	    stmt2.setInt(1, num); // 삭제된 부모글의 ref 값을 사용
 	    stmt2.executeUpdate();
